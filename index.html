@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Mood Music Player - Pink Theme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* ================================
+   MOBILE RESPONSIVE FIXES
+   ================================ */
+
+    /* Prevent horizontal scrolling */
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* App shell padding on small screens */
+    @media (max-width: 768px) {
+      body {
+        align-items: flex-start;
+        padding: 10px;
+      }
+
+      .app-shell {
+        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* LOGIN PAGE MOBILE */
+    @media (max-width: 768px) {
+      .login-wrapper {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .login-card,
+      .login-highlight {
+        padding: 16px;
+      }
+
+      input[type="text"] {
+        padding: 12px 14px;
+        font-size: 1rem;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* NAVBAR STACK FIX */
+    @media (max-width: 768px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .top-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .nav-tabs {
+        gap: 6px;
+      }
+
+      .tab-btn {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+      }
+    }
+
+    /* MAIN GRID STACK */
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+
+    /* CARDS MOBILE */
+    @media (max-width: 768px) {
+      .card {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .card h2 {
+        font-size: 1rem;
+      }
+
+      textarea {
+        min-height: 100px;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* CAMERA / IMAGE / AUDIO */
+    @media (max-width: 768px) {
+
+      video,
+      canvas,
+      #mood-image {
+        width: 100%;
+        height: auto;
+      }
+
+      audio {
+        width: 100%;
+      }
+    }
+
+    /* OUTPUT SECTION STACK */
+    @media (max-width: 768px) {
+      #output-section {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .mood-pill {
+        font-size: 0.75rem;
+      }
+    }
+
+    /* SMALL PHONES (≤ 480px) */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+      }
+
+      .btn {
+        font-size: 0.85rem;
+      }
+
+      .tab-btn {
+        font-size: 0.7rem;
+      }
+    }
+
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #f472b6 0, #020617 40%, #020617 100%);
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-shell {
+      width: 95%;
+      max-width: 1120px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 22px;
+      padding: 20px 24px 26px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(244, 114, 182, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.25), transparent 55%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 0.03em;
+      text-align: center;
+      background: linear-gradient(to right, #f472b6, #e5e7eb);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+      opacity: 0.8;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 250, 252, 0.1);
+      background: rgba(15, 23, 42, 0.8);
+      font-size: 0.75rem;
+      color: #f9a8d4;
+      margin-top: 10px;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #fb7185;
+      box-shadow: 0 0 6px #fb7185;
+    }
+
+    /* PAGES */
+    .page {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* LOGIN PAGE */
+    .login-wrapper {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .login-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .login-card {
+      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.12), transparent 50%),
+        rgba(15, 23, 42, 0.96);
+      border-radius: 18px;
+      padding: 18px 18px 20px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    .login-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+    }
+
+    .login-card p {
+      margin: 0 0 14px;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      opacity: 0.9;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      margin-top: 6px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #f9fafb;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #f472b6;
+      box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.7);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, #ec4899, #fb7185);
+      color: #020617;
+      box-shadow: 0 10px 25px rgba(236, 72, 153, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(236, 72, 153, 0.65);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.95);
+      color: #f9fafb;
+      border: 1px solid #4b5563;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(31, 41, 55, 1);
+    }
+
+    .btn-pill-small {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+    }
+
+    .login-highlight {
+      border-radius: 18px;
+      padding: 16px 16px 18px;
+      background: radial-gradient(circle at top, rgba(244, 114, 182, 0.22), rgba(15, 23, 42, 0.9));
+      border: 1px dashed rgba(244, 114, 182, 0.5);
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .login-highlight h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    ul.fun-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+      opacity: 0.9;
+    }
+
+    .error-text {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: #fecaca;
+    }
+
+    /* MAIN APP: NAVBAR / TABS */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-radius: 15px;
+      padding: 10px 14px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      margin-top: 10px;
+    }
+
+    .top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .user-name-badge {
+      font-size: 0.8rem;
+      color: #f9a8d4;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .tab-btn {
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(to right, #ec4899, #fb7185);
+      color: #020617;
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(236, 72, 153, 0.6);
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    /* SUBPAGES */
+    .subpage {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .subpage.active {
+      display: block;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      padding: 14px 14px 18px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.18), transparent 60%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .card>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+    }
+
+    .card small {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      opacity: 0.7;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border-radius: 10px;
+      border: 1px solid #4b5563;
+      padding: 8px 10px;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #f472b6;
+      box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.7);
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      opacity: 0.85;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+
+    .mood-display {
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    .mood-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #6b7280;
+      color: #e5e7eb;
+      box-shadow: 0 0 12px rgba(148, 163, 184, 0.5);
+    }
+
+    .mood-pill.sad {
+      background: #4f46e5;
+      box-shadow: 0 0 15px rgba(129, 140, 248, 0.8);
+    }
+
+    .mood-pill.happy {
+      background: #22c55e;
+      box-shadow: 0 0 15px rgba(74, 222, 128, 0.8);
+    }
+
+    .mood-pill.angry {
+      background: #f97373;
+      box-shadow: 0 0 15px rgba(248, 113, 113, 0.8);
+    }
+
+    .mood-pill.motivational {
+      background: #facc15;
+      color: #1f2937;
+      box-shadow: 0 0 15px rgba(250, 204, 21, 0.8);
+    }
+
+    .mood-pill.neutral {
+      background: #6b7280;
+    }
+
+    video,
+    canvas {
+      width: 100%;
+      border-radius: 14px;
+      background: #020617;
+      border: 1px solid #4b5563;
+    }
+
+    #output-section {
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.6);
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      #output-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #song-info {
+      font-size: 0.9rem;
+    }
+
+    #song-info p {
+      margin: 3px 0;
+    }
+
+    #song-info a {
+      color: #f472b6;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+
+    #song-info a:hover {
+      text-decoration: underline;
+    }
+
+    /* New image in place of YouTube player */
+    #mood-image {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 14px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      object-fit: cover;
+      display: none;
+      /* hidden until a mood is selected */
+    }
+
+    select {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <h1>Mood Music Player</h1>
+    <div class="subtitle">
+      Black &amp; pink vibes only. I’ll guess your mood and play songs for you 🎧
+    </div>
+    <div class="chip">
+      <span class="chip-dot"></span>
+      <span>Text • Voice • Camera mood detection</span>
+    </div>
+
+    <!-- PAGE 1: LOGIN -->
+    <div id="login-page" class="page active">
+      <div class="login-wrapper">
+        <div class="login-card">
+          <h2>Welcome! ✨</h2>
+          <p>Enter your name to start your personalized mood music journey.</p>
+
+          <form id="login-form">
+            <label for="username-input">Your name</label>
+            <input type="text" id="username-input" placeholder="Example: Rohan" autocomplete="off" />
+            <div style="margin-top: 14px;">
+              <button type="submit" class="btn btn-primary">
+                Continue
+              </button>
+            </div>
+            <div id="login-error" class="error-text"></div>
+          </form>
+        </div>
+
+        <div class="login-highlight">
+          <h3>What this app does 🎵</h3>
+          <ul class="fun-list">
+            <li>Type how you feel – it detects your mood from the text.</li>
+            <li>Talk to it – speech is converted to text and analyzed.</li>
+            <li>Use your camera – capture a photo and select mood for it.</li>
+            <li>Based on your mood, it shows a related image + song link.</li>
+          </ul>
+          <span style="font-size:0.8rem; opacity:0.9;">
+            We care for your feelings. We are here for you.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: MAIN APP -->
+    <div id="main-page" class="page">
+      <div class="top-bar">
+        <div class="top-left">
+          <div class="user-name-badge">
+            Hello, <span id="user-name"></span> 👋
+          </div>
+          <div class="nav-tabs">
+            <button class="tab-btn active" data-target="text-page">📝 Text Mood</button>
+            <button class="tab-btn" data-target="voice-page">🎙️ Voice Mood</button>
+            
+          </div>
+        </div>
+        <div class="top-right">
+          <span>Theme:</span>
+          <span style="color:#f9a8d4;">Black &amp; Pink</span>
+          <button id="logout-btn" class="btn btn-secondary btn-pill-small">Logout</button>
+        </div>
+      </div>
+
+      <!-- Shared layout: left = active subpage, right = global output -->
+      <div class="grid-2">
+        <div>
+          <!-- TEXT PAGE -->
+          <div id="text-page" class="subpage active">
+            <div class="card">
+              <h2>1. Text Mood</h2>
+              <small>Type how you feel in words.</small>
+              <textarea id="text-input"
+                placeholder="Example: I'm feeling really lonely and stressed today..."></textarea>
+              <div style="margin-top: 8px;">
+                <button id="text-mood-btn" class="btn btn-primary">
+                  Detect mood &amp; show song
+                </button>
+              </div>
+              <div class="status" id="text-status"></div>
+            </div>
+          </div>
+
+          <!-- VOICE PAGE -->
+          <div id="voice-page" class="subpage">
+            <div class="card">
+              <h2>2. Voice Mood</h2>
+              <small>Say how you feel. Speech → text → mood.</small>
+              <button id="voice-btn" class="btn btn-primary">
+                🎙️ Start Listening
+              </button>
+              <div class="status" id="voice-status"></div>
+              <textarea id="voice-text" placeholder="Transcribed speech will appear here..." readonly></textarea>
+              <div style="margin-top:8px;">
+                <button id="voice-mood-btn" class="btn btn-secondary">
+                  Use this text to detect mood
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CAMERA PAGE -->
+          <div id="camera-page" class="subpage">
+            <div class="card">
+              <h2>3. Face Mood</h2>
+              <small>Turn on camera, click a photo, then choose mood (or connect AI later).</small>
+
+              <video id="video" autoplay playsinline></video>
+              <canvas id="snapshot" style="display:none;"></canvas>
+
+              <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                <button id="camera-btn" class="btn btn-secondary">📷 Start camera</button>
+                <button id="capture-btn" class="btn btn-primary" disabled>📸 Capture photo</button>
+              </div>
+              <div class="status" id="camera-status"></div>
+
+              <div class="status" style="margin-top:4px; font-size:0.75rem;">
+                To auto-detect facial emotion, you can later connect <b>face-api.js</b> or any face emotion API here.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GLOBAL Detected mood & Image + Link -->
+        <div>
+          <div class="card">
+            <h2>Detected mood &amp; Song</h2>
+            <div id="output-section">
+              <div id="mood-output">
+                <div class="mood-display">
+                  <span id="mood-pill" class="mood-pill neutral">Neutral / Not sure yet</span>
+                </div>
+                <div id="song-info">
+                  <p>No song yet. Tell me how you feel 💬</p>
+                </div>
+              </div>
+              <div id="player-output">
+                <img id="mood-image" src="" alt="Mood illustration" />
+
+                <!-- AUDIO PLAYER -->
+                <audio id="audioPlayer" controls style="width:100%; margin-top:10px;">
+                  Your browser does not support audio.
+                </audio>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div> <!-- end grid-2 -->
+    </div> <!-- end main-page -->
+  </div>
+  <script defer src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+  <script>
+    /***********************************************
+     * LOGIN & PAGE SWITCHING (NO EXTRA FILES)
+     ***********************************************/
+    async function loadFaceModels() {
+      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+      await faceapi.nets.faceExpressionNet.loadFromUri("/models");
+      console.log("Face models loaded");
+    }
+
+    loadFaceModels();
+
+    const loginPage = document.getElementById("login-page");
+    const mainPage = document.getElementById("main-page");
+    const loginForm = document.getElementById("login-form");
+    const usernameInput = document.getElementById("username-input");
+    const loginError = document.getElementById("login-error");
+    const userNameSpan = document.getElementById("user-name");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault(); // IMPORTANT: no navigation to another file
+      const name = usernameInput.value.trim();
+      if (!name) {
+        loginError.textContent = "Please enter your name.";
+        return;
+      }
+      loginError.textContent = "";
+      userNameSpan.textContent = name;
+      loginPage.classList.remove("active");
+      mainPage.classList.add("active");
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      mainPage.classList.remove("active");
+      loginPage.classList.add("active");
+      usernameInput.value = "";
+    });
+
+    // TAB SWITCHING (Text / Voice / Camera)
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const subpages = document.querySelectorAll(".subpage");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-target");
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        subpages.forEach(page => {
+          if (page.id === target) {
+            page.classList.add("active");
+          } else {
+            page.classList.remove("active");
+          }
+        });
+      });
+    });
+
+    /****************************************************
+     * 1. MOOD DETECTION FROM TEXT (keyword-based)
+     ****************************************************/
+    const moodKeywords = {
+      sad: [
+        "sad", "lonely", "alone", "upset", "cry", "crying",
+        "hurt", "broken", "lost", "empty", "depressed",
+        "anxious", "anxiety", "stress", "stressed",
+        "tired", "exhausted", "pathetic", "miserable",
+        "fail", "failure", "hopeless"
+      ],
+      happy: [
+        "happy", "excited", "awesome", "great", "amazing",
+        "good", "joy", "joyful", "fun", "funny", "grateful",
+        "smile", "smiling", "love my life", "proud", "content"
+      ],
+      angry: [
+        "angry", "mad", "furious", "irritated", "annoyed",
+        "pissed", "hate", "frustrated", "rage"
+      ],
+      motivational: [
+        "demotivated", "no motivation",
+        "unmotivated", "give up", "giving up", "worthless",
+        "confused", "directionless", "what am i doing",
+        "don't know what's going on", "don't know what to do"
+      ]
+    };
+
+    function detectMoodFromText(text) {
+      const lower = text.toLowerCase();
+      const scores = { sad: 0, happy: 0, angry: 0, motivational: 0 };
+
+      for (const mood in moodKeywords) {
+        const words = moodKeywords[mood];
+        words.forEach(word => {
+          if (lower.includes(word)) {
+            scores[mood] += 1;
+          }
+        });
+      }
+
+      let bestMood = "neutral";
+      let bestScore = 0;
+      for (const mood in scores) {
+        if (scores[mood] > bestScore) {
+          bestScore = scores[mood];
+          bestMood = mood;
+        }
+      }
+
+      if (bestMood === "neutral") {
+        if (lower.match(/\b(happy|great|awesome|good|excited|love)\b/)) {
+          bestMood = "happy";
+        } else if (lower.match(/\b(sad|bad|lonely|cry|depress|stress)\b/)) {
+          bestMood = "sad";
+        }
+      }
+      return bestMood;
+    }
+
+
+
+
+    /* Mood → Image URLs (you can replace these with any direct image links you like) */
+    const moodImages = {
+      happy: [
+        "images/happy/happy1.jpg",
+        "images/happy/happy2.jpg",
+        "images/happy/happy3.jpg",
+
+      ],
+
+      sad: [
+        "images/sad/sad.jpg",
+        "images/sad/sad1.jpg",
+        "images/sad/sad2.jpg",
+
+
+      ],
+
+      angry: [
+        "images/angry/angry1.jpeg",
+        "images/angry/angry2.jpg",
+        "images/angry/angry3.jpg",
+        "images/angry/angry4.jpg"
+      ],
+
+      motivational: [
+        "images/motivational/moti1.jpg",
+        "images/motivational/moti2.webp",
+        "images/motivational/moti3.jpeg"
+      ],
+
+      neutral: [
+        "images/neutral/neutral1.jpg",
+        "images/neutral/neutral2.webp"
+      ]
+    };
+
+
+    function getRandomSongForMood(mood) {
+      const list = moodSongs[mood] || moodSongs["neutral"];
+      const idx = Math.floor(Math.random() * list.length);
+      return list[idx];
+    }
+
+    function getRandomImageForMood(mood) {
+      const list = moodImages[mood] || moodImages["neutral"];
+      const idx = Math.floor(Math.random() * list.length);
+      return list[idx];
+    }
+
+    function updateMoodUI(mood) {
+      const pill = document.getElementById("mood-pill");
+      pill.textContent = mood === "neutral" ? "Neutral / Not sure yet" : mood.toUpperCase();
+      pill.className = "mood-pill " + mood;
+    }
+
+    /* ✅ Now this shows an image + YouTube link instead of embedding the video */
+    function playSongForMood(mood, reasonText = "") {
+      const audio = document.getElementById("audioPlayer");
+      const songInfo = document.getElementById("song-info");
+      const moodImageEl = document.getElementById("mood-image");
+
+      const moodMusic = {
+        happy: [
+          "music/happy/happy1.mp3",
+          "music/happy/happy2.mp3",
+          "music/happy/happy3.mp3",
+          "music/happy/happy4.mp3",
+          "music/happy/happy5.mp3"
+        ],
+        sad: [
+          "music/sad/sad1.mp3",
+          "music/sad/sad2.mp3",
+          "music/sad/sad3.mp3",
+          "music/sad/sad4.mp3",
+          "music/sad/sad5.mp3"
+        ],
+
+        motivational: [
+          "music/motivational/moti1.mp3",
+          "music/motivational/moti2.mp3",
+          "music/motivational/moti3.mp3",
+          "music/motivational/moti4.mp3",
+          "music/motivational/moti5.mp3",
+        ],
+
+        angry: [
+          "music/angry/angry1.mp3",
+          "music/angry/angry2.mp3",
+          "music/angry/angry3.mp3",
+        ],
+
+        neutral: [
+          "music/neutral/neutral1.mp3",
+          "music/neutral/neutral2.mp3",
+          "music/neutral/neutral3.mp3",
+        ]
+      };
+
+      // fallback if mood not found
+      const songs = moodMusic[mood] || moodMusic.happy;
+      const song = songs[Math.floor(Math.random() * songs.length)];
+
+      // play audio
+      audio.src = song;
+      audio.play();
+
+      // show image (keep your existing logic)
+      const imgUrl = getRandomImageForMood(mood);
+      if (imgUrl) {
+        moodImageEl.src = imgUrl;
+        moodImageEl.style.display = "block";
+      }
+
+      // update text info
+      songInfo.innerHTML = `
+    <p><strong>Reason:</strong> ${reasonText}</p>
+    <p><strong>Mood:</strong> ${mood.toUpperCase()}</p>
+   
+  `;
+
+      updateMoodUI(mood);
+    }
+
+
+    /***********************************************
+     * 3. TEXT INPUT LOGIC
+     ***********************************************/
+    const textInput = document.getElementById("text-input");
+    const textBtn = document.getElementById("text-mood-btn");
+    const textStatus = document.getElementById("text-status");
+
+    textBtn.addEventListener("click", () => {
+      const text = textInput.value.trim();
+      if (!text) {
+        textStatus.textContent = "Please type something about how you feel.";
+        return;
+      }
+      const mood = detectMoodFromText(text);
+      textStatus.textContent = "Mood detected from text: " + mood.toUpperCase();
+      playSongForMood(mood, "From your written text");
+    });
+
+    /***********************************************
+     * 4. VOICE INPUT LOGIC (SpeechRecognition)
+     ***********************************************/
+    const voiceBtn = document.getElementById("voice-btn");
+    const voiceStatus = document.getElementById("voice-status");
+    const voiceText = document.getElementById("voice-text");
+    const voiceMoodBtn = document.getElementById("voice-mood-btn");
+
+    let recognition = null;
+    let isListening = false;
+
+    if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.lang = "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.onstart = () => {
+        isListening = true;
+        voiceBtn.textContent = "🛑 Stop Listening";
+        voiceStatus.textContent = "Listening... speak about how you feel.";
+      };
+
+      recognition.onerror = (event) => {
+        console.error(event);
+        isListening = false;
+        voiceBtn.textContent = "🎙️ Start Listening";
+        voiceStatus.textContent = "Error while listening. Try again.";
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        voiceBtn.textContent = "🎙️ Start Listening";
+        if (!voiceText.value.trim()) {
+          voiceStatus.textContent = "Stopped listening.";
+        }
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript + " ";
+        }
+        voiceText.value = transcript.trim();
+      };
+
+      voiceBtn.addEventListener("click", () => {
+        if (!recognition) return;
+        if (!isListening) {
+          voiceText.value = "";
+          recognition.start();
+        } else {
+          recognition.stop();
+        }
+      });
+    } else {
+      voiceStatus.textContent =
+        "Speech recognition is not supported in this browser. Try using Google Chrome.";
+      voiceBtn.disabled = true;
+    }
+
+    voiceMoodBtn.addEventListener("click", () => {
+      const text = voiceText.value.trim();
+      if (!text) {
+        voiceStatus.textContent = "No voice text yet. Click 'Start Listening' and speak first.";
+        return;
+      }
+      const mood = detectMoodFromText(text);
+      voiceStatus.textContent = "Mood detected from voice text: " + mood.toUpperCase();
+      playSongForMood(mood, "From your voice (speech → text)");
+    });
+
+
+    
+  </script>
+</body>
+
+</html>
+

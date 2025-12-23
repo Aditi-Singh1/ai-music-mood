@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood Matcher</title>
+
+<script src="/_sdk/element_sdk.js"></script>
+<script src="/_sdk/data_sdk.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#0a1628;
+  color:#fff;
+}
+.container{width:100%;display:flex;justify-content:center;padding:2rem}
+.login-card{
+  max-width:420px;width:100%;
+  padding:3rem;
+  border-radius:24px;
+  background:rgba(255,255,255,.06);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.header{text-align:center;margin-bottom:2rem}
+.main-heading{
+  font-size:2.5rem;
+  color:#f9629f;
+  font-family:"Brush Script MT",cursive;
+  text-shadow:0 0 25px rgba(249,98,159,.6)
+}
+.title{font-size:1.5rem;font-weight:700}
+.subtitle{opacity:.85}
+.form-group{margin-bottom:1.25rem}
+label{display:block;margin-bottom:.4rem}
+input{
+  width:100%;
+  padding:.9rem 1rem;
+  border-radius:12px;
+  border:2px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);
+  color:white;
+}
+input:focus{
+  outline:none;
+  border-color:#f9629f;
+  box-shadow:0 0 15px rgba(249,98,159,.5)
+}
+.button-group{display:flex;gap:1rem}
+.login-button{
+  flex:1;
+  padding:1rem;
+  border-radius:12px;
+  border:none;
+  font-weight:600;
+  cursor:pointer;
+}
+.ok-button{background:#f9629f;color:#0a1628}
+.cancel-button{background:#ffb7d5;color:#0a1628}
+.footer{text-align:center;margin-top:1.5rem}
+.footer a{color:#f9629f;cursor:pointer;font-weight:600}
+.message{
+  display:none;
+  padding:1rem;
+  margin-bottom:1rem;
+  border-radius:12px;
+  text-align:center;
+}
+.message.show{display:block}
+.message.success{background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4)}
+.message.error{background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.4)}
+.page{display:none}
+.page.active{display:block}
+.spinner{
+  width:14px;height:14px;
+  border:2px solid rgba(255,255,255,.4);
+  border-top-color:white;
+  border-radius:50%;
+  display:inline-block;
+  animation:spin .6s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="login-card">
+
+<!-- LOGIN -->
+<div id="login-page" class="page active">
+<div class="header">
+<h1 class="main-heading">Music Mood Matcher</h1>
+<h2 class="title">Welcome Back</h2>
+<p class="subtitle">Please enter your details</p>
+</div>
+
+<div id="login-message" class="message"></div>
+
+<form id="login-form">
+<div class="form-group">
+<label>User ID</label>
+<input id="login-user-id" required>
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="login-password" required>
+</div>
+<div class="button-group">
+<a href="index.html"><button class="login-button ok-button">OK</button></a> 
+<button type="button" id="cancel-login" class="login-button cancel-button">Cancel</button>
+</div>
+</form>
+
+<div class="footer">
+<span>Don’t have an account? <a id="to-signup">Sign up</a></span>
+</div>
+</div>
+
+<!-- SIGNUP -->
+<div id="signup-page" class="page">
+<div class="header">
+<h1 class="main-heading">Music Mood Matcher</h1>
+<h2 class="title">Create Account</h2>
+</div>
+
+<div id="signup-message" class="message"></div>
+
+<form id="signup-form">
+<div class="form-group"><label>User ID</label><input id="signup-user-id" required></div>
+<div class="form-group"><label>Email</label><input type="email" id="signup-email" required></div>
+<div class="form-group"><label>Phone</label><input id="signup-phone" required></div>
+<div class="form-group"><label>Password</label><input type="password" id="signup-password" required></div>
+<div class="form-group"><label>Confirm Password</label><input type="password" id="signup-confirm" required></div>
+<div class="button-group">
+<a href="index.html"><button class="login-button ok-button" id="signup-btn">Sign Up</button></a> 
+<button type="button" id="cancel-signup" class="login-button cancel-button">Cancel</button>
+</div>
+</form>
+
+<div class="footer">
+<span>Already have an account? <a id="to-login">Log in</a></span>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+let users=[];
+
+const show=(id)=>document.getElementById(id).classList.add("active");
+const hide=(id)=>document.getElementById(id).classList.remove("active");
+
+const msg=(id,text,type)=>{
+  const el=document.getElementById(id);
+  el.className=`message show ${type}`;
+  el.innerHTML=text;
+};
+
+document.getElementById("to-signup").onclick=()=>{hide("login-page");show("signup-page")}
+document.getElementById("to-login").onclick=()=>{hide("signup-page");show("login-page")}
+
+document.getElementById("login-form").onsubmit=e=>{
+  e.preventDefault();
+  const u=document.getElementById("login-user-id").value;
+  const p=document.getElementById("login-password").value;
+  const found=users.find(x=>x.user===u&&x.pass===p);
+  if(found) msg("login-message","✅ Login successful","success");
+  else msg("login-message","❌ Invalid credentials","error");
+};
+
+document.getElementById("signup-form").onsubmit=e=>{
+  e.preventDefault();
+  const u=document.getElementById("signup-user-id").value;
+  const p=document.getElementById("signup-password").value;
+  const c=document.getElementById("signup-confirm").value;
+  if(p!==c){msg("signup-message","Passwords don’t match","error");return;}
+  users.push({user:u,pass:p});
+  msg("signup-message","🎉 Account created!","success");
+  setTimeout(()=>{hide("signup-page");show("login-page")},1500);
+};
+</script>
+</body>
+</html>
