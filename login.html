@@ -115,7 +115,8 @@ input:focus{
 <input type="password" id="login-password" required>
 </div>
 <div class="button-group">
-<a href="index.html"><button class="login-button ok-button">OK</button></a> 
+<button type="submit" class="login-button ok-button">OK</button>
+
 <button type="button" id="cancel-login" class="login-button cancel-button">Cancel</button>
 </div>
 </form>
@@ -169,14 +170,26 @@ const msg=(id,text,type)=>{
 document.getElementById("to-signup").onclick=()=>{hide("login-page");show("signup-page")}
 document.getElementById("to-login").onclick=()=>{hide("signup-page");show("login-page")}
 
-document.getElementById("login-form").onsubmit=e=>{
+document.getElementById("login-form").onsubmit = e => {
   e.preventDefault();
-  const u=document.getElementById("login-user-id").value;
-  const p=document.getElementById("login-password").value;
-  const found=users.find(x=>x.user===u&&x.pass===p);
-  if(found) msg("login-message","✅ Login successful","success");
-  else msg("login-message","❌ Invalid credentials","error");
+
+  const u = document.getElementById("login-user-id").value;
+  const p = document.getElementById("login-password").value;
+
+  const found = users.find(x => x.user === u && x.pass === p);
+
+  if (found) {
+    msg("login-message", "✅ Login successful", "success");
+
+    // ✅ Redirect to index.html
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 800);
+  } else {
+    msg("login-message", "❌ Invalid credentials", "error");
+  }
 };
+
 
 document.getElementById("signup-form").onsubmit=e=>{
   e.preventDefault();
